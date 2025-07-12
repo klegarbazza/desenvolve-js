@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Tarefas</title>
+  <style>
+    .tarefa {
+      font-size: 18px;
+      margin: 5px 0;
+    }
+
+    .concluida {
+      text-decoration: line-through;
+      color: gray;
+    }
+
+    .nao-concluida {
+      color: black;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Minha Lista de Tarefas</h1>
+
+  <input type="text" id="descricao" placeholder="Nova tarefa">
+  <button id="adicionar">Adicionar</button>
+
+  <div id="lista-tarefas"></div>
+
+  <script>
+    const tarefas = []
+
+    const input = document.getElementById('descricao')
+    const botao = document.getElementById('adicionar')
+    const lista = document.getElementById('lista-tarefas')
+
+    function renderizarTarefas() {
+      lista.innerHTML = ''
+
+      tarefas.forEach((tarefa, index) => {
+        const div = document.createElement('div')
+        const checkbox = document.createElement('input')
+        checkbox.type = 'checkbox'
+        checkbox.checked = tarefa.status
+
+        const span = document.createElement('span')
+        span.textContent = tarefa.descricao
+        span.className = 'tarefa ' + (tarefa.status ? 'concluida' : 'nao-concluida')
+
+        checkbox.addEventListener('change', () => {
+          tarefa.status = checkbox.checked
+          renderizarTarefas()
+        })
+
+        div.appendChild(checkbox)
+        div.appendChild(span)
+        lista.appendChild(div)
+      })
+    }
+
+    botao.addEventListener('click', () => {
+      const texto = input.value.trim()
+      if (texto !== '') {
+        tarefas.push({ descricao: texto, status: false })
+        input.value = ''
+        renderizarTarefas()
+      }
+    })
+  </script>
+
+</body>
+</html>
