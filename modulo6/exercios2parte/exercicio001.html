@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Botão Curtir</title>
+</head>
+<body>
+
+  <h1>Sistema de Curtidas</h1>
+
+  <input type="text" id="nome" placeholder="Digite seu nome">
+  <button id="curtir">Curtir</button>
+
+  <p id="mensagem">Ninguém curtiu</p>
+
+  <script>
+    const nomesCurtiram = []
+    const botao = document.getElementById('curtir')
+    const input = document.getElementById('nome')
+    const mensagem = document.getElementById('mensagem')
+
+    botao.addEventListener('click', () => {
+      const nome = input.value.trim()
+
+      if (nome !== '' && !nomesCurtiram.includes(nome)) {
+        nomesCurtiram.push(nome)
+      }
+
+      if (nomesCurtiram.length === 0) {
+        mensagem.textContent = 'Ninguém curtiu'
+      } else if (nomesCurtiram.length === 1) {
+        mensagem.textContent = `${nomesCurtiram[0]} curtiu`
+      } else if (nomesCurtiram.length === 2) {
+        mensagem.textContent = `${nomesCurtiram[0]} e ${nomesCurtiram[1]} curtiram`
+      } else {
+        const outros = nomesCurtiram.length - 2
+        mensagem.textContent = `${nomesCurtiram[0]}, ${nomesCurtiram[1]} e mais ${outros} pessoas curtiram`
+      }
+
+      input.value = ''
+    })
+  </script>
+
+</body>
+</html>
