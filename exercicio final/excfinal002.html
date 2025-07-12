@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<title>Mini Twitter com Gatinhos</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding-top: 130px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: #f8f8f8;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+  }
+  textarea {
+    width: 100%;
+    height: 70px;
+    resize: none;
+    font-size: 16px;
+    padding: 8px;
+  }
+  button {
+    margin-top: 5px;
+    padding: 8px 12px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  ul#feed {
+    list-style: none;
+    padding: 0;
+  }
+  li.post {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    background: #fff;
+  }
+  .header-post {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+  .username {
+    font-weight: bold;
+  }
+  .date {
+    font-size: 12px;
+    color: gray;
+    margin-left: auto;
+  }
+  .post-text {
+    margin-bottom: 8px;
+    white-space: pre-wrap;
+  }
+  .post-image {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 8px;
+  }
+  .like-section {
+    display: flex;
+    align-items: center;
+  }
+  .like-btn {
+    background-color: #007bff;
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .likes-count {
+    margin-left: 10px;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <form id="form-post">
+    <textarea id="texto-post" placeholder="O que você está pensando?" required></textarea>
+    <button type="submit">Postar</button>
+  </form>
+</header>
+
+<ul id="feed"></ul>
+
+<script>
+  const feed = []
+  const form = document.getElementById('form-post')
+  const textoPost = document.getElementById('texto-post')
+  const feedElement = document.getElementById('feed')
+
+  const usuario = {
+    nome: 'UsuárioTeste',
+    avatar: 'https://i.pravatar.cc/150?img=5'
+  }
+
+  function formatarData(data) {
+    return data.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+  }
+
+  function criarPostElemento(post, index) {
+    const li = document.createElement('li')
+    li.className = 'post'
+
+    const headerDiv = document.createElement('div')
+    headerDiv.className = 'header-post'
+
+    const img = document.createElement('img')
+    img.src = post.avatar
+    img.alt = post.nome + ' avatar'
+    img.className = 'avatar'
+
+    const nomeSpan = document.createElement('span')
+    nomeSpan.className = 'username'
+    nomeSpan.textContent = post.nome
+
+    const dateSpan = document.createElement('span')
+    dateSpan.className = 'date'
+    dateSpan.textContent = formatarData(new Date(post.data))
+
+    headerDiv.appendChild(img)
+    headerDiv.appendChild(nomeSpan)
+    headerDiv.appendChild(dateSpan)
+
+    const textoDiv = document.createElement('div')
+    textoDiv.className = 'post-text'
+    textoDiv.textContent = post.texto
+
+    const imgGato = document.createElement('img')
+    imgGato.className = 'post-image'
+    imgGato.src = post.imagem
+    imgGato.alt = 'Imagem de gatinho'
+
+    const likeSection = document.createElement('div')
+    likeSection.className = 'like-section'
+
+    const botaoCurtir = document.createElement('button')
+    botaoCurtir.className = 'like-btn'
+    botaoCurtir.textContent = 'Curtir'
+
+    const contadorLikes = document.createElement('span')
+    contadorLikes.className = 'likes-count'
+    contadorLikes.textContent = post.likes
+
+    botaoCurtir.addEventListener('click', () => {
+      feed[index].likes++
+      salvarFeed()
+      renderizarFeed()
+    })
+
+    likeSection.appendChild(botaoCurtir)
+    likeSection.appendChild(contadorLikes)
+
+    li.appendChild(headerDiv)
+    li.appendChild(textoDiv)
+    li.appendChild(imgGato)
+    li.appendChild(likeSection)
+
+    return li
+  }
+
+  function salvarFeed() {
+    localStorage.setItem('feed', JSON.stringify(feed))
+  }
+
+  function carregarFeed() {
+    const feedSalvo = JSON.parse(localStorage.getItem('feed'))
+    if (feedSalvo) {
+      feed.length = 0
+      feed.push(...feedSalvo)
+    }
+  }
+
+  function renderizarFeed() {
+    feedElement.innerHTML = ''
+    for (let i = feed.length - 1; i >= 0; i--) {
+      const postEl = criarPostElemento(feed[i], i)
+      feedElement.appendChild(postEl)
+    }
+  }
+
+  async function pegarImagemGato() {
+    try {
+      const resposta = await fetch('https://api.thecatapi.com/v1/images/search')
+      const dados = await resposta.json()
+      return dados[0].url
+    } catch {
+      return 'https://placekitten.com/400/300'
+    }
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const texto = textoPost.value.trim()
+    if (texto === '') return
+
+    const imagemGato = await pegarImagemGato()
+
+    feed.push({
+      data: new Date().toISOString(),
+      nome: usuario.nome,
+      avatar: usuario.avatar,
+      texto: texto,
+      imagem: imagemGato,
+      likes: 0
+    })
+
+    salvarFeed()
+    renderizarFeed()
+    textoPost.value = ''
+  })
+
+  carregarFeed()
+  renderizarFeed()
+</script>
+
+</body>
+</html>
