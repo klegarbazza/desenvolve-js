@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Exercício DOM</title>
+  <style>
+    .paragrafo-estilizado {
+      color: blue;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 id="titulo">Título Original</h1>
+
+  <ul id="lista">
+    <li>Item 1</li>
+    <li>Item 2</li>
+    <li>Item 3</li>
+  </ul>
+
+  <p>Parágrafo 1</p>
+  <p>Parágrafo 2</p>
+
+  <button id="meu-botao">Clique aqui</button>
+
+  <script>
+    const titulo = document.getElementById('titulo');
+    titulo.textContent = 'Novo Título da Página';
+
+    const itens = document.querySelectorAll('#lista li');
+    itens.forEach(item => {
+      item.style.color = 'green';
+      item.style.fontWeight = 'bold';
+    });
+
+    const paragrafos = document.querySelectorAll('p');
+    paragrafos.forEach(p => {
+      p.classList.add('paragrafo-estilizado');
+    });
+
+    const botao = document.getElementById('meu-botao');
+    botao.textContent = 'Texto Alterado';
+  </script>
+
+</body>
+</html>
